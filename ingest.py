@@ -9,12 +9,14 @@ from langchain.embeddings import HuggingFaceInstructEmbeddings
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.text_splitter import Language, RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
+from multiprocessing import Pool
+import glob
+from tqdm import tqdm
 
-from constants2 import (
+from constants import (
     CHROMA_SETTINGS,
     DOCUMENT_MAP,
     EMBEDDING_MODEL_NAME,
-    INGEST_THREADS,
     PERSIST_DIRECTORY,
     SOURCE_DIRECTORY,
 )
@@ -31,7 +33,6 @@ def load_single_document(file_path: str) -> List[Document]:
         return loader.load()
     
 
-
 def load_document_batch(filepaths):
     logging.info("Loading document batch")
     # create a thread pool
@@ -43,9 +44,6 @@ def load_document_batch(filepaths):
         # return data and file paths
         return (data_list, filepaths)
 
-from multiprocessing import Pool
-import glob
-from tqdm import tqdm
 
 def load_documents(source_dir: str, ignored_files: List[str] = []) -> List[Document]:
     """
@@ -66,6 +64,7 @@ def load_documents(source_dir: str, ignored_files: List[str] = []) -> List[Docum
                 pbar.update()
 
     return results
+
 
 def process_documents(ignored_files: List[str] = []) -> List[Document]:
     """
@@ -94,6 +93,7 @@ def does_vectorstore_exist(persist_directory: str) -> bool:
             if len(list_index_files) > 3:
                 return True
     return False
+
 
 def main():
     # Create embeddings
